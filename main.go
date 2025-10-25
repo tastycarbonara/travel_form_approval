@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
+	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/tastycarbonara/travel_form_approval/db"
+	"github.com/tastycarbonara/travel_form_approval/models"
+	"github.com/tastycarbonara/travel_form_approval/routes"
 )
 
 // type Role struct {
@@ -16,48 +17,16 @@ import (
 // 	role_name string `gorm:"unique;not null"`
 // }
 
-// type User struct {
-// 	user_id       uint   `gorm:"primaryKey"`
-// 	user_name     string `gorm:"not null"`
-// 	user_email    string `gorm:"unique;not null"`
-// 	user_password string `gorm:"not null"`
-// }
-
 func main() {
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	godotenv.Load()
+	db.Connect()
 
-	var psqlInfo string = CreateConnString()
+	db.DB.AutoMigrate(&models.User{})
 
-	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
-	if err != nil {
-		log.Fatal("failed to connect database:", err)
-	} else {
-		_ = db
-		fmt.Println("connected successfully!")
-	}
+	router := mux.NewRouter()
+	routes.RegisterUserRoutes(router)
 
-	// err = db.AutoMigrate(&Role{}, &User{})
-	// if err != nil {
-	// 	log.Fatal("failed to migrate:", err)
-	// }
-}
-
-func CreateConnString() string {
-
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-
-	psqlInfo := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname,
-	)
-
-	return psqlInfo
+	fmt.Println("Server running on port 8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
