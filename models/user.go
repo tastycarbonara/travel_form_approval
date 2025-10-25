@@ -20,6 +20,11 @@ type CreateUserRequest struct {
 	Password string `json:"password"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	if len(u.UserPassword) < 8 {
 		return errors.New("password too short (min 8 characters)")
