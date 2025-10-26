@@ -2,16 +2,23 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type User struct {
-	UserID       uint   `gorm:"primaryKey" json:"id"`
-	UserName     string `gorm:"not null" json:"name"`
-	UserEmail    string `gorm:"unique;not null" json:"email"`
-	UserPassword string `gorm:"not null" json:"-"`
+	UserID       uint      `gorm:"primaryKey" json:"id"`
+	UserName     string    `gorm:"not null" json:"name"`
+	UserEmail    string    `gorm:"unique;not null" json:"email"`
+	UserPassword string    `gorm:"not null" json:"-"`
+	IsActive     bool      `gorm:"not null" json:"is_active"`
+	IsDeleted    bool      `gorm:"not null" json:"is_deleted"`
+	CreatedDate  time.Time `gorm:"not null" json:"created_date"`
+	ModifiedDate time.Time `gorm:"not null" json:"modified_date"`
+	CreatedBy    string    `gorm:"not null" json:"created_by"`
+	ModifiedBy   string    `gorm:"not null" json:"modified_by"`
 }
 
 type CreateUserRequest struct {
